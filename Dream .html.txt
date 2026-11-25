@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Responsive viewport configuration -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dream — PKR Investment Plans &amp; Wallet</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script>
+    // Configure Tailwind theme colors and typography
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#060B14',
+              900: '#0D1526',
+              850: '#131F36',
+              800: '#1C2B47',
+              700: '#2E4166',
+            },
+            emerald: {
+              400: '#34D399',
+              500: '#10B981',
+              600: '#059669',
+            },
+            gold: {
+              400: '#FBBF24',
+              500: '#F59E0B',
+              600: '#D97706',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Subtle custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #060B14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2E4166;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-navy-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ===================================================================== -->
+  <!-- PUBLIC USER PORTAL (NO PUBLIC ADMIN LINKS, NO BOTTOM JAZZCASH BANNER) -->
+  <!-- ===================================================================== -->
+  <div id="publicPortal" class="flex-1 flex flex-col">
+
+    <!-- Clean Top Navigation Bar -->
+    <header class="sticky top-0 z-30 bg-navy-900/95 backdrop-blur border-b border-slate-800/80">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+        <!-- Brand Logo -->
+        <button type="button" onclick="handleBrandClick()" class="flex items-center gap-2.5 text-left">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-navy-950 font-extrabold text-base shadow-md shadow-emerald-500/20">
+            D
+          </div>
+          <span class="text-lg font-extrabold tracking-tight text-white">
+            Dream<span class="text-emerald-400">.</span>
+          </span>
+        </button>
+
+        <!-- Member Navigation (Visible once registered/logged in) -->
+        <nav id="memberNav" class="hidden md:flex items-center gap-5 text-sm font-medium text-slate-300">
+          <button type="button" onclick="scrollToElement('plansSection')" class="hover:text-emerald-400 transition-colors">Plans</button>
+          <button type="button" onclick="scrollToElement('depositSection')" class="hover:text-emerald-400 transition-colors">Deposit</button>
+          <button type="button" onclick="scrollToElement('withdrawSection')" class="hover:text-emerald-400 transition-colors">Withdraw</button>
+          <button type="button" onclick="scrollToElement('referralSection')" class="hover:text-emerald-400 transition-colors">Referral</button>
+        </nav>
+
+        <!-- Auth Switcher Buttons -->
+        <div id="authHeaderButtons" class="flex items-center gap-2">
+          <button type="button" onclick="switchAuthScreen('login')"
+            class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-200 bg-navy-800 hover:bg-navy-700 border border-slate-700 transition-colors">
+            Login
+          </button>
+          <button type="button" onclick="switchAuthScreen('register')"
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-navy-950 bg-emerald-500 hover:bg-emerald-400 transition-colors">
+            Register
+          </button>
+        </div>
+
+        <!-- Logged-In Member Badge & Logout -->
+        <div id="memberHeaderButtons" class="hidden items-center gap-2.5">
+          <span id="headerUserNameTag" class="hidden sm:inline-flex px-3 py-1.5 rounded-xl bg-navy-800 border border-slate-700 text-xs font-semibold text-slate-200">
+            Member
+          </span>
+          <button type="button" onclick="logoutMember()"
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 bg-navy-800 hover:bg-navy-700 border border-slate-700 transition-colors">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- =================================================================== -->
+    <!-- REGISTRATION-FIRST & LOGIN GATE                                     -->
+    <!-- =================================================================== -->
+    <section id="authGateView" class="flex-1 flex items-center justify-center px-4 py-10">
+      <div class="w-full max-w-md rounded-3xl bg-navy-900 border border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6">
+
+        <!-- Registration Screen (Shown First on Initial Link Visit) -->
+        <div id="registerScreen" class="space-y-5">
+          <div class="space-y-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Get Started with Dream</span>
+            <h1 class="text-2xl font-extrabold text-white">Create Your Account</h1>
+            <p class="text-xs text-slate-400">Register with your name, phone number, and password to access Dream investment plans.</p>
+          </div>
+
+          <form id="registerForm" class="space-y-4">
+            <div>
+              <label for="regName" class="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
+              <input id="regName" type="text" required placeholder="Enter your full name"
+                class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <div>
+              <label for="regPhone" class="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+              <input id="regPhone" type="tel" required placeholder="03XX-XXXXXXX"
+                class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <div>
+              <label for="regPassword" class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+              <input id="regPassword" type="password" required minlength="4" placeholder="Create a password"
+                class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <div>
+              <label for="regReferral" class="block text-xs font-semibold text-emerald-400 mb-1">Referral Code (Optional)</label>
+              <input id="regReferral" type="text" placeholder="e.g. DREAM-4821"
+                class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white uppercase focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <button type="submit"
+              class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-sm transition-colors">
+              Complete Registration
+            </button>
+          </form>
+
+          <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+            <span class="text-slate-400">Already registered?</span>
+            <button type="button" onclick="switchAuthScreen('login')" class="text-emerald-400 hover:underline font-bold">
+              Login Instead
+            </button>
+          </div>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="hidden space-y-5">
+          <div class="space-y-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-gold-400">Welcome Back</span>
+            <h1 class="text-2xl font-extrabold text-white">Login to Dream</h1>
+            <p class="text-xs text-slate-400">Sign in using your registered phone number and password.</p>
+          </div>
+
+          <form id="loginForm" class="space-y-4">
+            <div>
+              <label for="loginPhone" class="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+              <input id="loginPhone" type="tel" required placeholder="03XX-XXXXXXX"
+                class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <div>
+              <label for="loginPassword" class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+              <input id="loginPassword" type="password" required placeholder="Enter your password"
+                class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <button type="submit"
+              class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-sm transition-colors">
+              Login
+            </button>
+          </form>
+
+          <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+            <span class="text-slate-400">Need a new account?</span>
+            <button type="button" onclick="switchAuthScreen('register')" class="text-emerald-400 hover:underline font-bold">
+              Register First
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MAIN DREAM DASHBOARD (SHOWN AFTER REGISTRATION OR LOGIN)            -->
+    <!-- =================================================================== -->
+    <main id="memberDashboardView" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-10">
+
+      <!-- Prominent Top Balance & Approved Profit Header -->
+      <section class="rounded-3xl bg-gradient-to-br from-navy-900 via-navy-900 to-emerald-950/30 border border-slate-800 p-6 sm:p-7 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Dream Member Wallet</span>
+            <h1 id="welcomeMemberHeading" class="text-2xl sm:text-3xl font-extrabold text-white mt-0.5">Welcome to Dream</h1>
+          </div>
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-navy-950/80 border border-slate-800 text-xs text-slate-300">
+            <span>Referral Code:</span>
+            <strong id="topReferralCodeBadge" class="text-emerald-400 font-mono">DREAM-0000</strong>
+          </div>
+        </div>
+
+        <!-- Top Balance, Approved Profit & Active Investment Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="rounded-2xl bg-navy-950/90 border border-slate-800 p-4">
+            <span class="text-xs font-medium text-slate-400 block">Current Balance</span>
+            <p id="topCurrentBalance" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1">Rs. 0</p>
+            <span class="text-[11px] text-slate-500 mt-1 block">Updated by admin-approved profits &amp; adjustments</span>
+          </div>
+
+          <div class="rounded-2xl bg-navy-950/90 border border-slate-800 p-4">
+            <span class="text-xs font-medium text-slate-400 block">Approved Profit</span>
+            <p id="topApprovedProfit" class="text-2xl sm:text-3xl font-extrabold text-gold-400 mt-1">Rs. 0</p>
+            <span class="text-[11px] text-slate-500 mt-1 block">Credited only after Admin Panel approval</span>
+          </div>
+
+          <div class="rounded-2xl bg-navy-950/90 border border-slate-800 p-4">
+            <span class="text-xs font-medium text-slate-400 block">Approved Investment</span>
+            <p id="topApprovedInvestment" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Rs. 0</p>
+            <span id="topActivePlanLabel" class="text-[11px] text-emerald-300 mt-1 block">No active plan yet</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Investment Plans Section -->
+      <section id="plansSection" class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-gold-400">PKR Investment Plans</span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-0.5">Choose an Investment Plan</h2>
+          </div>
+          <p class="text-xs text-slate-400">Select a plan to fill your JazzCash deposit form</p>
+        </div>
+
+        <div id="plansGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <!-- Plans rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- Deposit & Withdraw Section -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+        <!-- JazzCash Deposit Card -->
+        <div id="depositSection" class="rounded-2xl bg-navy-900 border border-slate-800 p-6 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Deposit Funds</span>
+              <h2 class="text-lg font-extrabold text-white mt-0.5">JazzCash Deposit</h2>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold">
+              JazzCash
+            </span>
+          </div>
+
+          <!-- Official JazzCash Deposit Details -->
+          <div class="rounded-2xl bg-navy-950 border border-slate-800 p-4 space-y-3">
+            <div class="flex items-center justify-between gap-3 bg-navy-900 rounded-xl p-3 border border-slate-800">
+              <div>
+                <span class="text-[11px] text-slate-400 block">JazzCash Number</span>
+                <span class="text-lg font-extrabold text-white tracking-wider">03038815290</span>
+              </div>
+              <button type="button" onclick="copyTextValue('03038815290', 'JazzCash number 03038815290 copied')"
+                class="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 text-xs font-bold flex items-center gap-1.5 transition-colors">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>Copy</span>
+              </button>
+            </div>
+            <div class="flex items-center justify-between bg-navy-900 rounded-xl p-3 border border-slate-800">
+              <div>
+                <span class="text-[11px] text-slate-400 block">Account Title</span>
+                <span class="text-sm font-extrabold text-gold-400">Zai ur Rehman</span>
+              </div>
+              <span class="text-xs text-slate-400">PKR Transfer</span>
+            </div>
+          </div>
+
+          <!-- Deposit TID Submission Form -->
+          <form id="depositForm" class="space-y-3.5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="depositPlanSelect" class="block text-xs font-semibold text-slate-300 mb-1">Investment Plan</label>
+                <select id="depositPlanSelect"
+                  class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </select>
+              </div>
+              <div>
+                <label for="depositAmount" class="block text-xs font-semibold text-slate-300 mb-1">Deposit Amount (PKR)</label>
+                <input id="depositAmount" type="number" min="100" step="50" required placeholder="500"
+                  class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="depositSenderPhone" class="block text-xs font-semibold text-slate-300 mb-1">Sender JazzCash Number</label>
+                <input id="depositSenderPhone" type="tel" required placeholder="03XX-XXXXXXX"
+                  class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+              </div>
+              <div>
+                <label for="depositTid" class="block text-xs font-semibold text-slate-300 mb-1">Transaction ID (TID)</label>
+                <input id="depositTid" type="text" required placeholder="Enter JazzCash TID"
+                  class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500" />
+              </div>
+            </div>
+
+            <button type="submit"
+              class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-extrabold text-sm transition-colors">
+              Submit Deposit for Approval
+            </button>
+          </form>
+        </div>
+
+        <!-- Withdraw Request Card (Admin-Controlled) -->
+        <div id="withdrawSection" class="rounded-2xl bg-navy-900 border border-slate-800 p-6 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-gold-400">Payout Request</span>
+              <h2 class="text-lg font-extrabold text-white mt-0.5">Withdraw Funds</h2>
+            </div>
+            <span id="minWithdrawBadge" class="px-2.5 py-1 rounded-lg bg-gold-500/15 text-gold-300 border border-gold-500/30 text-xs font-bold">
+              Min: Rs. 500
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Enter your JazzCash withdrawal number and amount. Once submitted, your withdrawal stays <strong class="text-gold-400">Pending</strong> until reviewed and approved in the Admin Panel.
+          </p>
+
+          <form id="withdrawForm" class="space-y-3.5">
+            <div>
+              <label for="withdrawJazzCashNumber" class="block text-xs font-semibold text-slate-300 mb-1">JazzCash Withdrawal Number</label>
+              <input id="withdrawJazzCashNumber" type="tel" required placeholder="03XX-XXXXXXX"
+                class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-gold-500" />
+            </div>
+
+            <div>
+              <label for="withdrawAmount" class="block text-xs font-semibold text-slate-300 mb-1">Withdrawal Amount (PKR)</label>
+              <input id="withdrawAmount" type="number" min="100" step="50" required placeholder="500"
+                class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-gold-500" />
+            </div>
+
+            <button type="submit"
+              class="w-full py-3 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-extrabold text-sm transition-colors">
+              Withdraw
+            </button>
+          </form>
+        </div>
+
+      </section>
+
+      <!-- Referral Code Section -->
+      <section id="referralSection" class="rounded-2xl bg-navy-900 border border-slate-800 p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Invite Friends</span>
+            <h2 class="text-lg font-extrabold text-white mt-0.5">Your Referral Code</h2>
+          </div>
+          <span id="referralRewardInfo" class="text-xs text-slate-300">
+            Referral Bonus: <strong class="text-gold-400">10%</strong> on approved deposits
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+          <div class="md:col-span-2 rounded-xl bg-navy-950 border border-emerald-500/30 p-3.5 flex items-center justify-between gap-3">
+            <div>
+              <span class="text-[11px] text-slate-400 block">Unique Referral Code</span>
+              <code id="memberReferralCodeText" class="text-base sm:text-lg font-extrabold text-emerald-400 tracking-wider">DREAM-0000</code>
+            </div>
+            <button type="button" onclick="copyMemberReferralCode()"
+              class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 text-xs font-bold flex items-center gap-1.5 transition-colors">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>Copy Code</span>
+            </button>
+          </div>
+
+          <div class="rounded-xl bg-navy-950 border border-slate-800 p-3.5 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] text-slate-400 block">Invited Users</span>
+              <span id="memberInvitedCount" class="text-base font-extrabold text-white">0</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[11px] text-slate-400 block">Referral Bonus</span>
+              <span id="memberReferralBonusTotal" class="text-base font-extrabold text-gold-400">Rs. 0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Member Activity Table -->
+      <section class="rounded-2xl bg-navy-900 border border-slate-800 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-800">
+          <h2 class="text-base font-extrabold text-white">Deposits, Approved Profits &amp; Withdrawals</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-navy-950 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-4">Type</th>
+                <th class="py-3 px-4">Reference / Details</th>
+                <th class="py-3 px-4">Amount</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Time</th>
+              </tr>
+            </thead>
+            <tbody id="memberActivityTbody" class="divide-y divide-slate-800/70 text-xs sm:text-sm"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Clean Minimal Footer (No bottom JazzCash banner, no public admin link) -->
+    <footer class="border-t border-slate-800/80 bg-navy-900/60 mt-auto">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+        <span>&copy; <span id="copyrightYear">2026</span> Dream Investment. All rights reserved.</span>
+        <span>PKR Investment &amp; Wallet Platform</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- SEPARATE ADMIN CONTROL PANEL (SECRET ACCESS CODE: 2348)              -->
+  <!-- ===================================================================== -->
+  <div id="adminPanelView" class="hidden flex-1 flex-col lg:flex-row">
+
+    <!-- Admin Sidebar -->
+    <aside class="w-full lg:w-64 lg:min-w-[260px] bg-navy-900 border-b lg:border-b-0 lg:border-r border-slate-800 p-4 sm:p-5 flex flex-col justify-between">
+      <div class="space-y-5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gold-500 text-navy-950 flex items-center justify-center font-extrabold">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="text-sm font-extrabold text-white block">Dream Admin</span>
+              <span class="text-[11px] text-emerald-400">Control Panel (2348)</span>
+            </div>
+          </div>
+          <button type="button" onclick="lockAndExitAdmin()"
+            class="px-3 py-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-xs font-semibold text-slate-200 border border-slate-700">
+            Exit
+          </button>
+        </div>
+
+        <nav class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-1 gap-1.5">
+          <button type="button" data-admin-tab="deposits" onclick="switchAdminTab('deposits')"
+            class="admin-tab-btn flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-500 text-navy-950">
+            <span>Deposits</span>
+            <span id="adminPendingDepositsBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-navy-950 text-emerald-400">0</span>
+          </button>
+
+          <button type="button" data-admin-tab="profits" onclick="switchAdminTab('profits')"
+            class="admin-tab-btn flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:bg-navy-800">
+            <span>Daily Profits</span>
+            <span id="adminActivePlansBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300">0</span>
+          </button>
+
+          <button type="button" data-admin-tab="withdrawals" onclick="switchAdminTab('withdrawals')"
+            class="admin-tab-btn flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:bg-navy-800">
+            <span>Withdrawals</span>
+            <span id="adminPendingWithdrawalsBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-gold-500 text-navy-950">0</span>
+          </button>
+
+          <button type="button" data-admin-tab="users" onclick="switchAdminTab('users')"
+            class="admin-tab-btn flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:bg-navy-800">
+            <span>Users &amp; Codes</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="hidden lg:block pt-5 border-t border-slate-800 space-y-2 text-xs text-slate-400">
+        <p>Deposit JC: <strong class="text-white">03038815290</strong></p>
+        <p>Title: <strong class="text-gold-400">Zai ur Rehman</strong></p>
+        <button type="button" onclick="lockAndExitAdmin()"
+          class="w-full mt-2 py-2 px-3 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-200 font-semibold border border-slate-700">
+          Return to User View
+        </button>
+      </div>
+    </aside>
+
+    <!-- Admin Main Workspace -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto space-y-6">
+
+      <!-- Tab 1: Deposits Approval -->
+      <section id="adminSection-deposits" class="admin-section space-y-5">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Deposit Approval Queue</h1>
+          <p class="text-xs sm:text-sm text-slate-400">Review JazzCash deposits (03038815290 — Zai ur Rehman). Approving activates the user's plan and adds their investment amount.</p>
+        </div>
+
+        <div class="rounded-2xl bg-navy-900 border border-slate-800 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-navy-950 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  <th class="py-3 px-4">Member</th>
+                  <th class="py-3 px-4">Sender JC</th>
+                  <th class="py-3 px-4">TID</th>
+                  <th class="py-3 px-4">Plan</th>
+                  <th class="py-3 px-4">Amount</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminDepositsTbody" class="divide-y divide-slate-800/70 text-xs sm:text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 2: Daily Profit Payout Approval -->
+      <section id="adminSection-profits" class="admin-section hidden space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-extrabold text-white">Daily Profit Payouts</h1>
+            <p class="text-xs sm:text-sm text-slate-400">Approve daily profit payouts for active investments so profit and balance update on the user's top header.</p>
+          </div>
+          <button type="button" onclick="approveAllDailyProfits()"
+            class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 text-xs sm:text-sm font-extrabold shrink-0 transition-colors">
+            Approve All Daily Profits
+          </button>
+        </div>
+
+        <div class="rounded-2xl bg-navy-900 border border-slate-800 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-navy-950 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  <th class="py-3 px-4">Member</th>
+                  <th class="py-3 px-4">Plan &amp; Daily ROI</th>
+                  <th class="py-3 px-4">Approved Investment</th>
+                  <th class="py-3 px-4">Daily Profit Amount</th>
+                  <th class="py-3 px-4">Total Approved Profit</th>
+                  <th class="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminProfitsTbody" class="divide-y divide-slate-800/70 text-xs sm:text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 3: Withdrawal Requests Control -->
+      <section id="adminSection-withdrawals" class="admin-section hidden space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-extrabold text-white">Withdrawal Requests</h1>
+            <p class="text-xs sm:text-sm text-slate-400">Check each user's JazzCash withdrawal number and amount, then Approve (mark sent/paid) or Reject &amp; refund.</p>
+          </div>
+
+          <form id="minWithdrawForm" class="flex items-end gap-2">
+            <div>
+              <label for="minWithdrawInput" class="block text-xs font-semibold text-slate-300 mb-1">Min Withdrawal (PKR)</label>
+              <input id="minWithdrawInput" type="number" min="100" step="50"
+                class="w-32 rounded-xl bg-navy-950 border border-slate-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-gold-500" />
+            </div>
+            <button type="submit"
+              class="px-4 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 text-xs sm:text-sm font-bold">
+              Save
+            </button>
+          </form>
+        </div>
+
+        <div class="rounded-2xl bg-navy-900 border border-slate-800 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-navy-950 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  <th class="py-3 px-4">Member</th>
+                  <th class="py-3 px-4">JazzCash Number</th>
+                  <th class="py-3 px-4">Amount</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminWithdrawalsTbody" class="divide-y divide-slate-800/70 text-xs sm:text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 4: Registered Users & Referral Codes -->
+      <section id="adminSection-users" class="admin-section hidden space-y-5">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Registered Users &amp; Referral Codes</h1>
+          <p class="text-xs sm:text-sm text-slate-400">Inspect all registered users, their unique DREAM-XXXX referral codes, balances, and approved profits.</p>
+        </div>
+
+        <div class="rounded-2xl bg-navy-900 border border-slate-800 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-navy-950 border-b border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  <th class="py-3 px-4">User &amp; Phone</th>
+                  <th class="py-3 px-4">Referral Code</th>
+                  <th class="py-3 px-4">Referred By</th>
+                  <th class="py-3 px-4">Balance</th>
+                  <th class="py-3 px-4">Approved Profit</th>
+                  <th class="py-3 px-4">Investment</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTbody" class="divide-y divide-slate-800/70 text-xs sm:text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- SECRET ADMIN CODE MODAL (CODE: 2348)                                  -->
+  <!-- ===================================================================== -->
+  <div id="adminCodeModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/90 p-4">
+    <div class="w-full max-w-sm rounded-2xl bg-navy-900 border border-gold-500/40 p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-extrabold text-white">Admin Access</h3>
+        <button type="button" onclick="closeAdminCodeModal()" class="p-1 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-400">Enter the secret access code to open the Admin Control Panel.</p>
+      <form id="adminCodeForm" class="space-y-3.5">
+        <div>
+          <label for="adminCodeInput" class="block text-xs font-semibold text-slate-300 mb-1">Access Code</label>
+          <input id="adminCodeInput" type="password" required placeholder="••••"
+            class="w-full rounded-xl bg-navy-950 border border-slate-700 px-3.5 py-2.5 text-sm text-white tracking-widest focus:outline-none focus:border-gold-500" />
+        </div>
+        <button type="submit"
+          class="w-full py-2.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-bold text-sm transition-colors">
+          Open Control Panel
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- ===================================================================== -->
+  <!-- APPLICATION LOGIC                                                     -->
+  <!-- ===================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'dream_investment_state_v3';
+      const ADMIN_ACCESS_CODE = '2348';
+
+      // Generate unique referral code in DREAM-XXXX format
+      function generateDreamReferralCode(existingUsers) {
+        const used = new Set((existingUsers || []).map((u) => (u.referralCode || '').toUpperCase()));
+        let code = '';
+        let attempts = 0;
+        do {
+          const digits = Math.floor(1000 + Math.random() * 9000);
+          code = 'DREAM-' + digits;
+          attempts += 1;
+        } while (used.has(code) && attempts < 50);
+        return code;
+      }
+
+      // Default clean application state (new users always start with Rs. 0 balance and Rs. 0 profit)
+      const defaultState = {
+        currentUserId: null,
+        adminUnlocked: false,
+        settings: {
+          jazzCashNumber: '03038815290',
+          jazzCashTitle: 'Zai ur Rehman',
+          referralBonusPct: 10,
+          minWithdrawal: 500
+        },
+        plans: [
+          { id: 1, name: 'Starter', min: 500, max: 2999, dailyReturn: 8, duration: 15 },
+          { id: 2, name: 'Silver', min: 3000, max: 9999, dailyReturn: 10, duration: 20 },
+          { id: 3, name: 'Gold', min: 10000, max: 49999, dailyReturn: 12, duration: 25 },
+          { id: 4, name: 'VIP Dream', min: 50000, max: 500000, dailyReturn: 15, duration: 30 }
+        ],
+        users: [],
+        transactions: []
+      };
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return JSON.parse(JSON.stringify(defaultState));
+          const parsed = JSON.parse(raw);
+          return {
+            ...JSON.parse(JSON.stringify(defaultState)),
+            ...parsed,
+            settings: {
+              ...defaultState.settings,
+              ...(parsed.settings || {})
+            },
+            plans: Array.isArray(parsed.plans) && parsed.plans.length > 0
+              ? parsed.plans
+              : JSON.parse(JSON.stringify(defaultState.plans)),
+            users: Array.isArray(parsed.users) ? parsed.users : [],
+            transactions: Array.isArray(parsed.transactions) ? parsed.transactions : []
+          };
+        } catch (err) {
+          return JSON.parse(JSON.stringify(defaultState));
+        }
+      }
+
+      let state = loadState();
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) {
+          // Ignore storage quota errors in restricted contexts
+        }
+      }
+
+      function formatPKR(amount) {
+        return 'Rs. ' + Number(amount || 0).toLocaleString('en-PK');
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const palette = {
+          success: 'bg-navy-900 border-emerald-500/50 text-emerald-300',
+          warning: 'bg-navy-900 border-gold-500/50 text-gold-300',
+          error: 'bg-navy-900 border-rose-500/50 text-rose-300'
+        };
+        const toast = document.createElement('div');
+        toast.className = `pointer-events-auto rounded-xl border px-4 py-3 text-xs font-semibold shadow-xl ${palette[type] || palette.success}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.remove();
+        }, 3200);
+      }
+
+      function getCurrentUser() {
+        if (!state.currentUserId) return null;
+        return state.users.find((u) => u.id === state.currentUserId) || null;
+      }
+
+      function getUserDailyProfitRate(user) {
+        if (!user) return 0;
+        const activeList = Array.isArray(user.activeInvestments) ? user.activeInvestments : [];
+        if (activeList.length > 0) {
+          return activeList.reduce((sum, inv) => {
+            if (inv.status === 'Active') {
+              return sum + Math.round((Number(inv.amount || 0) * Number(inv.dailyReturn || 0)) / 100);
+            }
+            return sum;
+          }, 0);
+        }
+        if (Number(user.investedAmount || 0) > 0 && user.activePlanName) {
+          const plan = state.plans.find((p) => p.name === user.activePlanName);
+          const roi = plan ? Number(plan.dailyReturn || 0) : 0;
+          return Math.round((Number(user.investedAmount || 0) * roi) / 100);
+        }
+        return 0;
+      }
+
+      function refreshIcons() {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+      }
+
+      // ===================================================================
+      // REGISTRATION-FIRST & LOGIN FLOW
+      // ===================================================================
+      window.switchAuthScreen = function (screen) {
+        const regEl = document.getElementById('registerScreen');
+        const loginEl = document.getElementById('loginScreen');
+        if (screen === 'login') {
+          regEl.classList.add('hidden');
+          loginEl.classList.remove('hidden');
+        } else {
+          loginEl.classList.add('hidden');
+          regEl.classList.remove('hidden');
+        }
+        refreshIcons();
+      };
+
+      window.handleBrandClick = function () {
+        const user = getCurrentUser();
+        if (user) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          switchAuthScreen('register');
+        }
+      };
+
+      window.scrollToElement = function (elementId) {
+        const el = document.getElementById(elementId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+
+      document.getElementById('registerForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('regName').value.trim();
+        const phone = document.getElementById('regPhone').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const refInput = document.getElementById('regReferral').value.trim().toUpperCase();
+
+        if (!name || !phone || !password) {
+          showToast('Please fill in all required fields', 'error');
+          return;
+        }
+
+        const existingUser = state.users.find((u) => u.phone.toLowerCase() === phone.toLowerCase());
+        if (existingUser) {
+          showToast('This phone number is already registered. Please log in.', 'warning');
+          document.getElementById('loginPhone').value = phone;
+          switchAuthScreen('login');
+          return;
+        }
+
+        let referrer = null;
+        if (refInput) {
+          referrer = state.users.find((u) => (u.referralCode || '').toUpperCase() === refInput);
+          if (referrer) {
+            referrer.invitedCount = Number(referrer.invitedCount || 0) + 1;
+          }
+        }
+
+        // New user starts with Rs. 0 balance and Rs. 0 approved profit
+        const newUser = {
+          id: Date.now(),
+          name,
+          phone,
+          password,
+          balance: 0,
+          approvedProfit: 0,
+          investedAmount: 0,
+          activePlanName: null,
+          activeInvestments: [],
+          referralCode: generateDreamReferralCode(state.users),
+          referredBy: referrer ? referrer.referralCode : null,
+          invitedCount: 0,
+          referralBonusEarned: 0
+        };
+
+        state.users.unshift(newUser);
+        state.currentUserId = newUser.id;
+        saveState();
+
+        this.reset();
+        renderUserPortal();
+        showToast('Registration complete! Welcome to Dream.', 'success');
+      });
+
+      document.getElementById('loginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const phone = document.getElementById('loginPhone').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        const user = state.users.find(
+          (u) => u.phone.toLowerCase() === phone.toLowerCase() && String(u.password) === String(password)
+        );
+
+        if (!user) {
+          showToast('Invalid phone number or password', 'error');
+          return;
+        }
+
+        state.currentUserId = user.id;
+        saveState();
+        this.reset();
+        renderUserPortal();
+        showToast('Logged in as ' + user.name, 'success');
+      });
+
+      window.logoutMember = function () {
+        state.currentUserId = null;
+        saveState();
+        switchAuthScreen('register');
+        renderUserPortal();
+        showToast('Logged out', 'warning');
+      };
+
+      // ===================================================================
+      // USER PORTAL RENDERING
+      // ===================================================================
+      function renderUserPortal() {
+        const user = getCurrentUser();
+        const authGate = document.getElementById('authGateView');
+        const dashboardView = document.getElementById('memberDashboardView');
+        const memberNav = document.getElementById('memberNav');
+        const authHeaderButtons = document.getElementById('authHeaderButtons');
+        const memberHeaderButtons = document.getElementById('memberHeaderButtons');
+
+        document.getElementById('minWithdrawBadge').textContent = 'Min: ' + formatPKR(state.settings.minWithdrawal);
+        document.getElementById('referralRewardInfo').innerHTML =
+          `Referral Bonus: <strong class="text-gold-400">${escapeHtml(state.settings.referralBonusPct)}%</strong> on approved deposits`;
+
+        renderPlansGrid();
+        populateDepositPlanSelect();
+
+        if (!user) {
+          authGate.classList.remove('hidden');
+          dashboardView.classList.add('hidden');
+          memberNav.classList.add('hidden');
+          memberNav.classList.remove('md:flex');
+          authHeaderButtons.classList.remove('hidden');
+          memberHeaderButtons.classList.add('hidden');
+          memberHeaderButtons.classList.remove('flex');
+          refreshIcons();
+          return;
+        }
+
+        authGate.classList.add('hidden');
+        dashboardView.classList.remove('hidden');
+        memberNav.classList.remove('hidden');
+        memberNav.classList.add('md:flex');
+        authHeaderButtons.classList.add('hidden');
+        memberHeaderButtons.classList.remove('hidden');
+        memberHeaderButtons.classList.add('flex');
+
+        document.getElementById('headerUserNameTag').textContent = user.name;
+        document.getElementById('welcomeMemberHeading').textContent = `Welcome, ${user.name}`;
+        document.getElementById('topReferralCodeBadge').textContent = user.referralCode;
+
+        // Top Balance & Approved Profit Header
+        document.getElementById('topCurrentBalance').textContent = formatPKR(user.balance || 0);
+        document.getElementById('topApprovedProfit').textContent = formatPKR(user.approvedProfit || 0);
+        document.getElementById('topApprovedInvestment').textContent = formatPKR(user.investedAmount || 0);
+
+        const dailyRate = getUserDailyProfitRate(user);
+        document.getElementById('topActivePlanLabel').textContent = user.activePlanName
+          ? `${user.activePlanName} (${formatPKR(dailyRate)}/day)`
+          : 'No active plan yet';
+
+        // Referral card values
+        document.getElementById('memberReferralCodeText').textContent = user.referralCode;
+        document.getElementById('memberInvitedCount').textContent = String(user.invitedCount || 0);
+        document.getElementById('memberReferralBonusTotal').textContent = formatPKR(user.referralBonusEarned || 0);
+
+        renderMemberActivityTable(user);
+        refreshIcons();
+      }
+
+      function renderPlansGrid() {
+        const grid = document.getElementById('plansGrid');
+        grid.innerHTML = state.plans.map((plan) => `
+          <div class="rounded-2xl bg-navy-900 border border-slate-800 hover:border-emerald-500/40 p-5 flex flex-col justify-between space-y-4 transition-colors">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <h3 class="text-base font-extrabold text-white">${escapeHtml(plan.name)}</h3>
+                <span class="px-2.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 text-xs font-bold">${escapeHtml(plan.dailyReturn)}%/day</span>
+              </div>
+              <p class="text-xs text-slate-400">Duration: <strong class="text-slate-200">${escapeHtml(plan.duration)} Days</strong></p>
+              <div class="pt-2 border-t border-slate-800 text-xs space-y-1.5">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Minimum:</span>
+                  <span class="font-bold text-white">${formatPKR(plan.min)}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Maximum:</span>
+                  <span class="font-bold text-gold-400">${formatPKR(plan.max)}</span>
+                </div>
+              </div>
+            </div>
+            <button type="button" onclick="choosePlan(${plan.id})"
+              class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-bold text-xs transition-colors">
+              Select Plan
+            </button>
+          </div>
+        `).join('');
+      }
+
+      function populateDepositPlanSelect() {
+        const select = document.getElementById('depositPlanSelect');
+        const currentValue = select.value;
+        select.innerHTML = state.plans.map((plan) =>
+          `<option value="${plan.id}">${escapeHtml(plan.name)} (${formatPKR(plan.min)} - ${formatPKR(plan.max)} • ${escapeHtml(plan.dailyReturn)}%/day)</option>`
+        ).join('');
+        if (currentValue) {
+          select.value = currentValue;
+        }
+      }
+
+      window.choosePlan = function (planId) {
+        const plan = state.plans.find((p) => p.id === planId);
+        if (!plan) return;
+        document.getElementById('depositPlanSelect').value = String(plan.id);
+        document.getElementById('depositAmount').value = plan.min;
+        scrollToElement('depositSection');
+      };
+
+      window.copyTextValue = function (text, successMessage) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          showToast(successMessage, 'success');
+        } catch (err) {
+          showToast(text, 'warning');
+        }
+        document.body.removeChild(textarea);
+      };
+
+      window.copyMemberReferralCode = function () {
+        const user = getCurrentUser();
+        if (!user) return;
+        copyTextValue(user.referralCode, 'Referral code ' + user.referralCode + ' copied');
+      };
+
+      function statusPill(status) {
+        if (status === 'Approved') {
+          return `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400">Approved</span>`;
+        }
+        if (status === 'Rejected') {
+          return `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400">Rejected</span>`;
+        }
+        return `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gold-500/15 text-gold-400">Pending</span>`;
+      }
+
+      function renderMemberActivityTable(user) {
+        const tbody = document.getElementById('memberActivityTbody');
+        const rows = state.transactions.filter((tx) => tx.userId === user.id);
+
+        if (rows.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="py-6 px-4 text-center text-xs text-slate-400">No deposits, profits, or withdrawals yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = rows.map((tx) => {
+          const typeClass = tx.type === 'Withdrawal'
+            ? 'text-gold-400'
+            : 'text-emerald-400';
+          const detailText = tx.type === 'Deposit'
+            ? `${tx.planName || 'Plan'} • TID: ${tx.tid || '-'}`
+            : tx.type === 'Withdrawal'
+              ? `JazzCash: ${tx.account || '-'}`
+              : (tx.details || 'Approved Profit Payout');
+
+          return `
+            <tr>
+              <td class="py-3 px-4 font-bold ${typeClass}">${escapeHtml(tx.type)}</td>
+              <td class="py-3 px-4 text-xs text-slate-300">${escapeHtml(detailText)}</td>
+              <td class="py-3 px-4 font-bold text-white">${formatPKR(tx.amount)}</td>
+              <td class="py-3 px-4">${statusPill(tx.status)}</td>
+              <td class="py-3 px-4 text-right text-xs text-slate-400">${escapeHtml(tx.time)}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // ===================================================================
+      // DEPOSIT & WITHDRAWAL SUBMISSIONS
+      // ===================================================================
+      document.getElementById('depositForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const user = getCurrentUser();
+        if (!user) {
+          showToast('Please register or log in first', 'warning');
+          return;
+        }
+
+        const plan = state.plans.find((p) => p.id === Number(document.getElementById('depositPlanSelect').value)) || state.plans[0];
+        const amount = Number(document.getElementById('depositAmount').value);
+        const senderPhone = document.getElementById('depositSenderPhone').value.trim();
+        const tid = document.getElementById('depositTid').value.trim();
+
+        if (!amount || amount <= 0 || !senderPhone || !tid) {
+          showToast('Please enter valid deposit details and TID', 'error');
+          return;
+        }
+
+        state.transactions.unshift({
+          id: Date.now(),
+          userId: user.id,
+          userName: user.name,
+          type: 'Deposit',
+          amount,
+          planName: plan ? plan.name : 'Starter',
+          account: senderPhone,
+          tid,
+          status: 'Pending',
+          time: 'Just now'
+        });
+
+        saveState();
+        this.reset();
+        renderUserPortal();
+        showToast('Deposit submitted and pending admin approval', 'success');
+      });
+
+      document.getElementById('withdrawForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const user = getCurrentUser();
+        if (!user) {
+          showToast('Please register or log in first', 'warning');
+          return;
+        }
+
+        const jazzCashNumber = document.getElementById('withdrawJazzCashNumber').value.trim();
+        const amount = Number(document.getElementById('withdrawAmount').value);
+        const minWd = Number(state.settings.minWithdrawal || 500);
+
+        if (!jazzCashNumber) {
+          showToast('Please enter your JazzCash withdrawal number', 'error');
+          return;
+        }
+        if (!amount || amount < minWd) {
+          showToast('Minimum withdrawal amount is ' + formatPKR(minWd), 'error');
+          return;
+        }
+        if (amount > Number(user.balance || 0)) {
+          showToast('Insufficient balance for this withdrawal', 'error');
+          return;
+        }
+
+        // Hold requested amount in pending withdrawal until admin approves or rejects
+        user.balance = Number(user.balance || 0) - amount;
+
+        state.transactions.unshift({
+          id: Date.now(),
+          userId: user.id,
+          userName: user.name,
+          type: 'Withdrawal',
+          amount,
+          account: jazzCashNumber,
+          status: 'Pending',
+          time: 'Just now'
+        });
+
+        saveState();
+        this.reset();
+        renderUserPortal();
+        showToast('Withdrawal request submitted (Pending admin approval)', 'success');
+      });
+
+      // ===================================================================
+      // SEPARATE ADMIN CONTROL PANEL (ACCESS CODE: 2348)
+      // ===================================================================
+      function hasAdminHashOrQuery() {
+        const hash = (window.location.hash || '').toLowerCase();
+        const search = (window.location.search || '').toLowerCase();
+        return hash === '#admin' || hash.includes('admin=2348') || search.includes('admin=2348');
+      }
+
+      function openAdminCodeModal() {
+        document.getElementById('adminCodeInput').value = '';
+        const modal = document.getElementById('adminCodeModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => document.getElementById('adminCodeInput').focus(), 50);
+        refreshIcons();
+      }
+
+      window.closeAdminCodeModal = function () {
+        const modal = document.getElementById('adminCodeModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      };
+
+      document.getElementById('adminCodeForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const code = document.getElementById('adminCodeInput').value.trim();
+        if (code === ADMIN_ACCESS_CODE) {
+          closeAdminCodeModal();
+          enterAdminControlPanel();
+          showToast('Admin Control Panel unlocked', 'success');
+        } else {
+          showToast('Invalid admin access code', 'error');
+        }
+      });
+
+      function enterAdminControlPanel() {
+        state.adminUnlocked = true;
+        saveState();
+        document.getElementById('publicPortal').classList.add('hidden');
+        document.getElementById('adminPanelView').classList.remove('hidden');
+        document.getElementById('adminPanelView').classList.add('flex');
+        renderAdminControlPanel();
+        refreshIcons();
+      }
+
+      window.lockAndExitAdmin = function () {
+        state.adminUnlocked = false;
+        saveState();
+        if ((window.location.hash || '').toLowerCase() === '#admin') {
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+        document.getElementById('adminPanelView').classList.add('hidden');
+        document.getElementById('adminPanelView').classList.remove('flex');
+        document.getElementById('publicPortal').classList.remove('hidden');
+        renderUserPortal();
+        refreshIcons();
+      };
+
+      window.switchAdminTab = function (tabName) {
+        document.querySelectorAll('.admin-section').forEach((sec) => sec.classList.add('hidden'));
+        const activeSec = document.getElementById('adminSection-' + tabName);
+        if (activeSec) activeSec.classList.remove('hidden');
+
+        document.querySelectorAll('.admin-tab-btn').forEach((btn) => {
+          const isSelected = btn.getAttribute('data-admin-tab') === tabName;
+          btn.className = isSelected
+            ? 'admin-tab-btn flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-500 text-navy-950'
+            : 'admin-tab-btn flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:bg-navy-800';
+        });
+
+        renderAdminControlPanel();
+      };
+
+      function renderAdminControlPanel() {
+        const pendingDeposits = state.transactions.filter((t) => t.type === 'Deposit' && t.status === 'Pending');
+        const pendingWithdrawals = state.transactions.filter((t) => t.type === 'Withdrawal' && t.status === 'Pending');
+        const activeInvestors = state.users.filter((u) => Number(u.investedAmount || 0) > 0);
+
+        document.getElementById('adminPendingDepositsBadge').textContent = String(pendingDeposits.length);
+        document.getElementById('adminActivePlansBadge').textContent = String(activeInvestors.length);
+        document.getElementById('adminPendingWithdrawalsBadge').textContent = String(pendingWithdrawals.length);
+        document.getElementById('minWithdrawInput').value = state.settings.minWithdrawal;
+
+        renderAdminDepositsTable();
+        renderAdminProfitsTable();
+        renderAdminWithdrawalsTable();
+        renderAdminUsersTable();
+        refreshIcons();
+      }
+
+      function renderAdminDepositsTable() {
+        const tbody = document.getElementById('adminDepositsTbody');
+        const deposits = state.transactions.filter((t) => t.type === 'Deposit');
+
+        if (deposits.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="py-6 px-4 text-center text-xs text-slate-400">No deposit requests yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = deposits.map((tx) => `
+          <tr>
+            <td class="py-3 px-4 font-semibold text-white">${escapeHtml(tx.userName)}</td>
+            <td class="py-3 px-4 text-xs text-slate-300">${escapeHtml(tx.account || '-')}</td>
+            <td class="py-3 px-4 font-mono text-xs text-gold-400 font-bold">${escapeHtml(tx.tid || '-')}</td>
+            <td class="py-3 px-4 text-xs text-emerald-300">${escapeHtml(tx.planName || '-')}</td>
+            <td class="py-3 px-4 font-bold text-white">${formatPKR(tx.amount)}</td>
+            <td class="py-3 px-4">${statusPill(tx.status)}</td>
+            <td class="py-3 px-4 text-right whitespace-nowrap space-x-1">
+              ${tx.status === 'Pending' ? `
+                <button type="button" onclick="reviewTransaction(${tx.id}, 'Approved')" class="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-navy-950 text-xs font-bold">Approve</button>
+                <button type="button" onclick="reviewTransaction(${tx.id}, 'Rejected')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold">Reject</button>
+              ` : `<span class="text-xs text-slate-500">Processed</span>`}
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      function renderAdminProfitsTable() {
+        const tbody = document.getElementById('adminProfitsTbody');
+        const investors = state.users.filter((u) => Number(u.investedAmount || 0) > 0);
+
+        if (investors.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="py-6 px-4 text-center text-xs text-slate-400">No approved investments yet. Approve a deposit first to start daily profit payouts.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = investors.map((u) => {
+          const dailyProfit = getUserDailyProfitRate(u);
+          const planObj = state.plans.find((p) => p.name === u.activePlanName);
+          const roiText = planObj ? `${planObj.dailyReturn}%/day` : 'Active';
+
+          return `
+            <tr>
+              <td class="py-3 px-4">
+                <span class="font-semibold text-white block">${escapeHtml(u.name)}</span>
+                <span class="text-xs text-slate-400">${escapeHtml(u.phone)}</span>
+              </td>
+              <td class="py-3 px-4 text-xs text-emerald-300 font-semibold">${escapeHtml(u.activePlanName || 'Investment')} (${escapeHtml(roiText)})</td>
+              <td class="py-3 px-4 font-bold text-white">${formatPKR(u.investedAmount)}</td>
+              <td class="py-3 px-4 font-extrabold text-gold-400">${formatPKR(dailyProfit)}</td>
+              <td class="py-3 px-4 font-bold text-emerald-400">${formatPKR(u.approvedProfit || 0)}</td>
+              <td class="py-3 px-4 text-right whitespace-nowrap">
+                <button type="button" onclick="creditUserDailyProfit(${u.id})"
+                  class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-navy-950 text-xs font-extrabold">
+                  Approve Daily Profit
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      window.creditUserDailyProfit = function (userId) {
+        const user = state.users.find((u) => u.id === userId);
+        if (!user) return;
+        const profitAmount = getUserDailyProfitRate(user);
+        if (profitAmount <= 0) {
+          showToast('No daily profit rate available for ' + user.name, 'warning');
+          return;
+        }
+
+        // Approving daily profit updates both Approved Profit and Current Balance
+        user.approvedProfit = Number(user.approvedProfit || 0) + profitAmount;
+        user.balance = Number(user.balance || 0) + profitAmount;
+
+        state.transactions.unshift({
+          id: Date.now() + Math.floor(Math.random() * 100),
+          userId: user.id,
+          userName: user.name,
+          type: 'Daily Profit',
+          amount: profitAmount,
+          details: (user.activePlanName || 'Investment') + ' Daily Profit',
+          status: 'Approved',
+          time: 'Just now'
+        });
+
+        saveState();
+        renderAdminControlPanel();
+        renderUserPortal();
+        showToast(`Approved ${formatPKR(profitAmount)} profit for ${user.name}`, 'success');
+      };
+
+      window.approveAllDailyProfits = function () {
+        let count = 0;
+        let total = 0;
+
+        state.users.forEach((user) => {
+          const profitAmount = getUserDailyProfitRate(user);
+          if (profitAmount > 0) {
+            user.approvedProfit = Number(user.approvedProfit || 0) + profitAmount;
+            user.balance = Number(user.balance || 0) + profitAmount;
+            count += 1;
+            total += profitAmount;
+
+            state.transactions.unshift({
+              id: Date.now() + count,
+              userId: user.id,
+              userName: user.name,
+              type: 'Daily Profit',
+              amount: profitAmount,
+              details: (user.activePlanName || 'Investment') + ' Daily Profit',
+              status: 'Approved',
+              time: 'Just now'
+            });
+          }
+        });
+
+        if (count === 0) {
+          showToast('No active investments found for daily profit payout', 'warning');
+          return;
+        }
+
+        saveState();
+        renderAdminControlPanel();
+        renderUserPortal();
+        showToast(`Approved ${count} daily profit payouts (${formatPKR(total)})`, 'success');
+      };
+
+      function renderAdminWithdrawalsTable() {
+        const tbody = document.getElementById('adminWithdrawalsTbody');
+        const withdrawals = state.transactions.filter((t) => t.type === 'Withdrawal');
+
+        if (withdrawals.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="py-6 px-4 text-center text-xs text-slate-400">No withdrawal requests yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = withdrawals.map((tx) => `
+          <tr>
+            <td class="py-3 px-4 font-semibold text-white">${escapeHtml(tx.userName)}</td>
+            <td class="py-3 px-4 font-mono text-xs text-emerald-300 font-bold">${escapeHtml(tx.account || '-')}</td>
+            <td class="py-3 px-4 font-bold text-white">${formatPKR(tx.amount)}</td>
+            <td class="py-3 px-4">${statusPill(tx.status)}</td>
+            <td class="py-3 px-4 text-right whitespace-nowrap space-x-1">
+              ${tx.status === 'Pending' ? `
+                <button type="button" onclick="reviewTransaction(${tx.id}, 'Approved')" class="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-navy-950 text-xs font-bold">Approve &amp; Send</button>
+                <button type="button" onclick="reviewTransaction(${tx.id}, 'Rejected')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold">Reject &amp; Refund</button>
+              ` : `<span class="text-xs text-slate-500">Processed</span>`}
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      window.reviewTransaction = function (txId, decision) {
+        const tx = state.transactions.find((t) => t.id === txId);
+        if (!tx || tx.status !== 'Pending') return;
+        tx.status = decision;
+        tx.time = 'Just now';
+
+        const user = state.users.find((u) => u.id === tx.userId);
+        if (tx.type === 'Deposit' && decision === 'Approved' && user) {
+          const amt = Number(tx.amount || 0);
+          const matchedPlan = state.plans.find((p) => p.name === tx.planName) || state.plans[0];
+          user.investedAmount = Number(user.investedAmount || 0) + amt;
+          user.activePlanName = matchedPlan ? matchedPlan.name : (tx.planName || 'Starter');
+
+          if (!Array.isArray(user.activeInvestments)) user.activeInvestments = [];
+          user.activeInvestments.push({
+            id: Date.now(),
+            planName: user.activePlanName,
+            amount: amt,
+            dailyReturn: matchedPlan ? matchedPlan.dailyReturn : 8,
+            duration: matchedPlan ? matchedPlan.duration : 15,
+            status: 'Active'
+          });
+
+          if (user.referredBy) {
+            const sponsor = state.users.find((u) => (u.referralCode || '').toUpperCase() === user.referredBy.toUpperCase());
+            if (sponsor) {
+              const bonus = Math.round((amt * Number(state.settings.referralBonusPct || 10)) / 100);
+              sponsor.balance = Number(sponsor.balance || 0) + bonus;
+              sponsor.referralBonusEarned = Number(sponsor.referralBonusEarned || 0) + bonus;
+            }
+          }
+        }
+
+        if (tx.type === 'Withdrawal' && decision === 'Rejected' && user) {
+          user.balance = Number(user.balance || 0) + Number(tx.amount || 0);
+        }
+
+        saveState();
+        renderAdminControlPanel();
+        renderUserPortal();
+        showToast(`${tx.type} marked as ${decision}`, decision === 'Approved' ? 'success' : 'warning');
+      };
+
+      document.getElementById('minWithdrawForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const val = Number(document.getElementById('minWithdrawInput').value);
+        if (val >= 100) {
+          state.settings.minWithdrawal = val;
+          saveState();
+          renderUserPortal();
+          showToast('Minimum withdrawal updated to ' + formatPKR(val), 'success');
+        }
+      });
+
+      function renderAdminUsersTable() {
+        const tbody = document.getElementById('adminUsersTbody');
+        if (state.users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="py-6 px-4 text-center text-xs text-slate-400">No registered users yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = state.users.map((u) => `
+          <tr>
+            <td class="py-3 px-4">
+              <span class="font-semibold text-white block">${escapeHtml(u.name)}</span>
+              <span class="text-xs text-slate-400">${escapeHtml(u.phone)}</span>
+            </td>
+            <td class="py-3 px-4">
+              <code class="px-2 py-1 rounded bg-navy-950 text-emerald-400 font-bold text-xs">${escapeHtml(u.referralCode)}</code>
+            </td>
+            <td class="py-3 px-4 text-xs text-slate-300">${escapeHtml(u.referredBy || 'Direct')}</td>
+            <td class="py-3 px-4 font-bold text-emerald-400">${formatPKR(u.balance || 0)}</td>
+            <td class="py-3 px-4 font-bold text-gold-400">${formatPKR(u.approvedProfit || 0)}</td>
+            <td class="py-3 px-4 text-xs text-white">${formatPKR(u.investedAmount || 0)} ${u.activePlanName ? '(' + escapeHtml(u.activePlanName) + ')' : ''}</td>
+          </tr>
+        `).join('');
+      }
+
+      // ===================================================================
+      // SHORTCUTS, REFERRAL QUERY & INITIALIZATION
+      // ===================================================================
+      document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
+          e.preventDefault();
+          if (state.adminUnlocked) {
+            enterAdminControlPanel();
+          } else {
+            openAdminCodeModal();
+          }
+        }
+      });
+
+      window.addEventListener('hashchange', function () {
+        if (hasAdminHashOrQuery() && !state.adminUnlocked) {
+          openAdminCodeModal();
+        }
+      });
+
+      window.addEventListener('storage', function (e) {
+        if (e.key === STORAGE_KEY) {
+          state = loadState();
+          renderUserPortal();
+          if (state.adminUnlocked) renderAdminControlPanel();
+        }
+      });
+
+      function prefillReferralFromQuery() {
+        const params = new URLSearchParams(window.location.search || '');
+        const refParam = (params.get('ref') || '').trim().toUpperCase();
+        if (refParam) {
+          const input = document.getElementById('regReferral');
+          if (input) input.value = refParam;
+        }
+      }
+
+      document.getElementById('copyrightYear').textContent = String(new Date().getFullYear());
+      prefillReferralFromQuery();
+      renderUserPortal();
+
+      if (hasAdminHashOrQuery()) {
+        if (state.adminUnlocked) {
+          enterAdminControlPanel();
+        } else {
+          openAdminCodeModal();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
